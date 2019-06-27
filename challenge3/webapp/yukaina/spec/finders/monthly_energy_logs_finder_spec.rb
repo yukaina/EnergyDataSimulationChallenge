@@ -51,14 +51,27 @@ RSpec.describe MonthlyEnergyLogsFinder do
   # rubocop:enable Naming/VariableNumber
 
   describe "averages" do
-    it "temperature, daylight, temperature の平均が出力されること" do
-      logs = MonthlyEnergyLogsFinder.averages
-      expect(logs.first["avarage_temperature"].floor(2).to_f).to eq 10.1
-      expect(logs.first["avarage_daylight"].floor(2).to_f).to eq 20.1
-      expect(logs.first["avarage_production_volume"]).to eq 101
-      expect(logs.second["avarage_temperature"].floor(2).to_f).to eq 20.2
-      expect(logs.second["avarage_daylight"].floor(2).to_f).to eq 30.2
-      expect(logs.second["avarage_production_volume"]).to eq 112
+    context "city_id の指定が無い場合" do
+      it "temperature, daylight, temperature の平均が出力されること" do
+        logs = MonthlyEnergyLogsFinder.averages
+        expect(logs.first["avarage_temperature"].floor(2).to_f).to eq 10.1
+        expect(logs.first["avarage_daylight"].floor(2).to_f).to eq 20.1
+        expect(logs.first["avarage_production_volume"]).to eq 101
+        expect(logs.second["avarage_temperature"].floor(2).to_f).to eq 20.2
+        expect(logs.second["avarage_daylight"].floor(2).to_f).to eq 30.2
+        expect(logs.second["avarage_production_volume"]).to eq 112
+      end
+    end
+
+    context "city_id がある場合" do
+      let(:tokyo_city) { City.find_by(name: "Tokyo") }
+
+      it do
+        logs = MonthlyEnergyLogsFinder.averages(city_id: tokyo_city.id)
+        expect(logs.first["avarage_temperature"].floor(2).to_f).to eq 10.0
+        expect(logs.first["avarage_daylight"].floor(2).to_f).to eq 20.0
+        expect(logs.first["avarage_production_volume"]).to eq 100
+      end
     end
   end
 
